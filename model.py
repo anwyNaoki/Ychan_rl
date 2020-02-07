@@ -30,11 +30,8 @@ class DQNModel(Model):
 
 
     def check_attention(self, s, name):
-
-
         l = self.intermediate_layer_model.predict(np.array([s]))[0]
         print(l)
-
         # l = self.intermediate_layer_model.predict(np.array([s]))[0]
         # import seaborn as sns
         # import matplotlib as mpl
@@ -57,25 +54,19 @@ class DQNModel(Model):
     def set_model(self):
         normal = K.initializers.glorot_normal()
         l_input = K.layers.Input(shape=(5, 5, 11))  # 16
-        l=[]
-        for j in range(11):
-            x = K.layers.Lambda(lambda x: x[:,:,:,j:j+1])(l_input)
-            x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-            x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-            x = K.layers.Conv2D(1, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-            l.append(x)
+        l = []
+        Dlayer=K.layers.DepthwiseConv2D(5, padding="same", kernel_initializer=normal, activation="relu")
+        x = Dlayer(l_input)
         flatten_layer = K.layers.Flatten()
-        
-        x = K.layers.concatenate(l)
-        y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(l_input)
-        y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(y)
-        y = flatten_layer(y)
-        y = K.layers.Dense(256, activation="relu")(y)
-        y = K.layers.Dense(11, activation="softmax")(y)
-        x = K.layers.multiply([x, y])
-        
+        GAP = K.layers.GlobalAveragePooling2D()
+        x = GAP(x)
+        x = K.layers.Activation('softmax')(x)
+        x = K.layers.multiply([x, l_input])
+
+        x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
+        x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
         x = flatten_layer(x)
-        x = K.layers.Dense(128, activation="relu")(x)    
+        x = K.layers.Dense(128, activation="linear")(x)
         x = K.layers.Dense(4, activation="linear")(x)
         m = K.models.Model(inputs=l_input, outputs=x)
         self._model = m
@@ -83,7 +74,35 @@ class DQNModel(Model):
         optimizer = K.optimizers.Adam(lr=self.learning_rate)
         self._model.compile(optimizer, loss="mse")
         self._model.summary()
-        self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("dense_1").output)
+        self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("global_average_pooling2d").output)
+
+        # for j in range(11):
+        #     x = K.layers.Lambda(lambda x: x[:,:,:,j:j+1])(l_input)
+        #     x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
+        #     x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
+        #     x = K.layers.Conv2D(1, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
+        #     l.append(x)
+        # flatten_layer = K.layers.Flatten()
+        
+        # x = K.layers.concatenate(l)
+        # y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(l_input)
+        # y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(y)
+        # y = flatten_layer(y)
+        # y = K.layers.Dense(256, activation="relu")(y)
+        # y = K.layers.Dense(11, activation="softmax")(y)
+        # x = K.layers.multiply([x, y])
+        
+        # x = flatten_layer(x)
+        # x = K.layers.Dense(128, activation="relu")(x)    
+        # x = K.layers.Dense(4, activation="linear")(x)
+        # m = K.models.Model(inputs=l_input, outputs=x)
+        # self._model = m
+        # self._teacher_model = K.models.clone_model(self._model)
+        # optimizer = K.optimizers.Adam(lr=self.learning_rate)
+        # self._model.compile(optimizer, loss="mse")
+        # self._model.summary()
+        # self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("dense_1").output)
+        
 
         # normal = K.initializers.glorot_normal()
         # l_input = K.layers.Input(shape=(5, 5, 3))  # 16

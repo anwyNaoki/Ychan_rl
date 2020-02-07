@@ -35,6 +35,7 @@ class MazeEnv(gym.Env):
         self.observation = np.zeros(25).reshape(5, 5)
         self.observation[0, 0] = 1
         self.player_pos = [4, 4]
+        
         observation = deepcopy(self.observation)
         observation[self.player_pos[1], self.player_pos[0]] = 1
         obs = [np.ones(25).reshape(5,5) for j in range(10)]
@@ -58,10 +59,7 @@ class MazeEnv(gym.Env):
         if (self.player_pos == [0, 0]):
             reward = 1
             self.done = True    
-            if (self.steps < 11):
-                self.clear += 1
-                if(self.clear>100):
-                    print("clear")
+
         observation = deepcopy(self.observation)
         observation[self.player_pos[1], self.player_pos[0]] = 1
         obs = [np.ones(25).reshape(5, 5) for j in range(10)]
