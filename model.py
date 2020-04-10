@@ -32,21 +32,7 @@ class DQNModel(Model):
     def check_attention(self, s, name):
         l = self.intermediate_layer_model.predict(np.array([s]))[0]
         print(l)
-        # l = self.intermediate_layer_model.predict(np.array([s]))[0]
-        # import seaborn as sns
-        # import matplotlib as mpl
-        # import matplotlib.pyplot as plt
-        # plt.figure()
-        # l = l.transpose(2, 0, 1)[0]
-        # sns.heatmap(l, cmap='Blues')
-        # plt.savefig('./log/' + 'attentin'+str(name) + '.png')
-        # plt.close('all')
-        # plt.figure()
-        # s = s.transpose(2, 0, 1)[0]
-        # sns.heatmap(s,cmap='Blues')
-        # plt.savefig('./log/' + 'state'+str(name) + '.png')
-        # plt.close('all')
-    
+
 
 
 
@@ -76,52 +62,7 @@ class DQNModel(Model):
         self._model.summary()
         self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("global_average_pooling2d").output)
 
-        # for j in range(11):
-        #     x = K.layers.Lambda(lambda x: x[:,:,:,j:j+1])(l_input)
-        #     x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-        #     x = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-        #     x = K.layers.Conv2D(1, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-        #     l.append(x)
-        # flatten_layer = K.layers.Flatten()
-        
-        # x = K.layers.concatenate(l)
-        # y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(l_input)
-        # y = K.layers.Conv2D(32, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(y)
-        # y = flatten_layer(y)
-        # y = K.layers.Dense(256, activation="relu")(y)
-        # y = K.layers.Dense(11, activation="softmax")(y)
-        # x = K.layers.multiply([x, y])
-        
-        # x = flatten_layer(x)
-        # x = K.layers.Dense(128, activation="relu")(x)    
-        # x = K.layers.Dense(4, activation="linear")(x)
-        # m = K.models.Model(inputs=l_input, outputs=x)
-        # self._model = m
-        # self._teacher_model = K.models.clone_model(self._model)
-        # optimizer = K.optimizers.Adam(lr=self.learning_rate)
-        # self._model.compile(optimizer, loss="mse")
-        # self._model.summary()
-        # self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("dense_1").output)
-        
-
-        # normal = K.initializers.glorot_normal()
-        # l_input = K.layers.Input(shape=(5, 5, 3))  # 16
-        # x = K.layers.Conv2D(512, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(l_input)
-        # x = K.layers.Conv2D(512, 3, strides=1, padding="same", kernel_initializer=normal, activation="relu")(x)
-        
-        # y = K.layers.Conv2D(1, 3, strides=1, padding="same", kernel_initializer=normal, activation="sigmoid")(x)
-        # z = K.layers.multiply([x, y])
-        # flatten_layer = K.layers.GlobalAveragePooling2D()
-        # x = flatten_layer(z)
-        # x = K.layers.Dense(128, activation="relu")(x)    
-        # x = K.layers.Dense(4, activation="linear")(x)
-        # m = K.models.Model(inputs=l_input, outputs=x)
-        # self._model = m
-        # self._teacher_model = K.models.clone_model(self._model)
-        # optimizer = K.optimizers.Adam(lr=self.learning_rate)
-        # self._model.compile(optimizer, loss="mse")
-        # self.intermediate_layer_model = K.models.Model(inputs=l_input, outputs=self._model.get_layer("conv2d_2").output)
-        # self._model.summary()
+    
     
     def reset_teacher(self):
         self._teacher_model.set_weights(self._model.get_weights())
